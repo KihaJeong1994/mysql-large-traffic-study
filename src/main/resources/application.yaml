@@ -1,0 +1,11 @@
+logging:
+  level:
+    org:
+      springframework:
+        jdbc:
+          core: TRACE
+
+spring:
+  datasource:
+    username: root
+    url: jdbc:mysql://localhost:3306/fast_sns?rewriteBatchedStatements=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
