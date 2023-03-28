@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MemberWriteService {
     private final MemberRepository memberRepository;
-    public Member create(RegisterMemberCommand command){
+    public Member register(RegisterMemberCommand command){
         /*
         * GOAL - register member (email, nickname, birthdate)
         *      - nickname less than 10
