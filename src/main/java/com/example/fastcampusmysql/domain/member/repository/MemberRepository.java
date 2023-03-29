@@ -2,20 +2,16 @@ package com.example.fastcampusmysql.domain.member.repository;
 
 import com.example.fastcampusmysql.domain.member.entity.Member;
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -24,6 +20,14 @@ public class MemberRepository {
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final String TABLE = "Member";
+
+    private final RowMapper<Member> rowMapper = (rs, rowNum)-> Member.builder()
+            .id(rs.getLong("id"))
+            .nickname(rs.getString("nickname"))
+            .email(rs.getString("email"))
+            .birthday(rs.getObject("birthday", LocalDate.class))
+            .createdAt(rs.getObject("createdAt", LocalDateTime.class))
+            .build();
 
     public Optional<Member> findById(Long id){
         /*
@@ -34,13 +38,6 @@ public class MemberRepository {
         String sql = String.format("SELECT * FROM %s WHERE id = :id", TABLE);
         var param = new MapSqlParameterSource()
                 .addValue("id",id);
-        RowMapper<Member> rowMapper = (rs, rowNum)-> Member.builder()
-                .id(rs.getLong("id"))
-                .nickname(rs.getString("nickname"))
-                .email(rs.getString("email"))
-                .birthday(rs.getObject("birthday", LocalDate.class))
-                .createdAt(rs.getObject("createdAt", LocalDateTime.class))
-                .build();
         var member = namedParameterJdbcTemplate.queryForObject(sql, param, rowMapper);
         return Optional.ofNullable(member);
     }
@@ -74,7 +71,9 @@ public class MemberRepository {
     }
 
     private Member update(Member member){
-        // TODO : implemented
+        String sql = String.format("UPDATE %s SET email = :email, nickname =:nickname , birthday =:birthday WHERE id = :id", TABLE);
+        SqlParameterSource params = new BeanPropertySqlParameterSource(member);
+        namedParameterJdbcTemplate.update(sql,params);
         return member;
     }
 }
