@@ -2,6 +2,7 @@ package com.example.fastcampusmysql.domain.member.repository;
 
 import com.example.fastcampusmysql.domain.member.entity.Member;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -38,8 +41,16 @@ public class MemberRepository {
         String sql = String.format("SELECT * FROM %s WHERE id = :id", TABLE);
         var param = new MapSqlParameterSource()
                 .addValue("id",id);
-        var member = namedParameterJdbcTemplate.queryForObject(sql, param, rowMapper);
-        return Optional.ofNullable(member);
+        var member = namedParameterJdbcTemplate.query(sql, param, rowMapper);
+        Member nullableMember = DataAccessUtils.singleResult(member);
+        return Optional.ofNullable(nullableMember);
+    }
+
+    public List<Member> findAllByIdIn(List<Long> ids){
+        if(ids.isEmpty()) return List.of();
+        String sql = String.format("SELECT * FROM %s WHERE id in (:ids)", TABLE);
+        var params = new MapSqlParameterSource().addValue("ids",ids);
+        return namedParameterJdbcTemplate.query(sql,params,rowMapper);
     }
 
 

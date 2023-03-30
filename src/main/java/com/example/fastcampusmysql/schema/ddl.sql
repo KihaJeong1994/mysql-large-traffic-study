@@ -18,3 +18,13 @@ CREATE TABLE MemberNicknameHistory
     constraint memberNicknameHistory_id_uidex
         primary key (id)
 );
+
+CREATE TABLE Follow
+(
+  id int auto_increment,
+  fromMemberId int not null,
+  toMemberId int not null,
+  createdAt datetime not null,
+  constraint follow_id_uindex
+    primary key(id)
+);
