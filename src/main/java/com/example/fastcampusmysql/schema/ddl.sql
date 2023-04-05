@@ -28,3 +28,14 @@ CREATE TABLE Follow
   constraint follow_id_uindex
     primary key(id)
 );
+
+CREATE TABLE Post
+(
+    id int auto_increment,
+    memberId int not null,
+    contents varchar(100) not null,
+    createdDate date not null,
+    createdAt datetime not null,
+    constraint post_id_uindex
+        primary key(id)
+);
