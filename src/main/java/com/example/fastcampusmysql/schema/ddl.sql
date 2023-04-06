@@ -39,3 +39,12 @@ CREATE TABLE Post
     constraint post_id_uindex
         primary key(id)
 );
+
+CREATE INDEX POST__index_member_id
+    ON Post(memberId);
+
+CREATE INDEX POST__index_created_date
+    ON Post(createdDate);
+
+CREATE INDEX POST__index_member_id_created_date
+    on Post(memberId,createdDate);

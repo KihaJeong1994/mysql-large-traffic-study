@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.stream.IntStream;
 
 @SpringBootTest // to inject spring bean
+//@Transactional // roll back after test
 public class PostBulkInsertTest {
 
     @Autowired
@@ -19,13 +20,13 @@ public class PostBulkInsertTest {
 
     @Test
     public void bulkInsert(){
-        var easyRandom = PostFixtureFactory.get(1L, LocalDate.of(2023,1,1),LocalDate.now());
+        var easyRandom = PostFixtureFactory.get(1L, LocalDate.of(1970,1,1),LocalDate.now());
 
         var stopWatch = new StopWatch();
         stopWatch.start();
 
         int _million = 10000*100;
-        var posts = IntStream.range(0,_million)
+        var posts = IntStream.range(0,2*_million)
                 .parallel()
                 .mapToObj(i->easyRandom.nextObject(Post.class))
                 .toList();
