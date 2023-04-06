@@ -49,6 +49,24 @@ public class PostRepository {
         throw new UnsupportedOperationException("Post does not support update");
     }
 
+    /*
+    * While using Spring Data JPA,
+    * jdbcTemplate is still used a lot when PK is auto increment
+    * because saveAll(List<?>) method is not bulk insert(insert all at once).
+    * It inserts data by loop.
+    * */
+    public void bulkInsert(List<Post> posts){
+        var sql = String.format("""
+                INSERT INTO %s (memberId, contents, createdDate, createdAt)
+                VALUES (:memberId, :contents, :createdDate, :createdAt)
+                """, TABLE);
+        SqlParameterSource[] params = posts
+                .stream()
+                .map(BeanPropertySqlParameterSource::new)
+                .toArray(SqlParameterSource[]::new);
+        namedParameterJdbcTemplate.batchUpdate(sql,params);
+    }
+
 
     private Post insert(Post post){
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(namedParameterJdbcTemplate.getJdbcTemplate())
