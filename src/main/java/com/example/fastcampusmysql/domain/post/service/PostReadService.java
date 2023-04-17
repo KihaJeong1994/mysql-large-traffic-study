@@ -34,9 +34,17 @@ public class PostReadService {
 
     public PageCursor<Post> getPosts(Long memberId, CursorRequest cursorRequest){
         List<Post> posts = findAllBy(memberId, cursorRequest);
-        var nextKey = posts.size()!=0 ? posts.get(posts.size()-1).getId() : CursorRequest.NONE_KEY;
+        var nextKey = getNextKey(posts);
         return new PageCursor<>(cursorRequest.next(nextKey),posts);
     }
+
+    public PageCursor<Post> getPosts(List<Long> memberIds, CursorRequest cursorRequest){
+        List<Post> posts = findAllBy(memberIds, cursorRequest);
+        var nextKey = getNextKey(posts);
+        return new PageCursor<>(cursorRequest.next(nextKey),posts);
+    }
+
+
 
     /*
     * if cursorRequest has no key(when request for 1st time, so does not know info about key)
@@ -50,5 +58,17 @@ public class PostReadService {
         }else {
             return postRepository.findAllByMemberIdOrderByIdDesc(memberId, cursorRequest.size());
         }
+    }
+
+    private List<Post> findAllBy(List<Long> memberIds, CursorRequest cursorRequest) {
+        if(cursorRequest.hasKey()){
+            return postRepository.findAllByIdLessThanByMemberIdInOrderByIdDesc(cursorRequest.key(), memberIds, cursorRequest.size());
+        }else {
+            return postRepository.findAllByMemberIdInOrderByIdDesc(memberIds, cursorRequest.size());
+        }
+    }
+
+    private static Long getNextKey(List<Post> posts) {
+        return posts.size() != 0 ? posts.get(posts.size() - 1).getId() : CursorRequest.NONE_KEY;
     }
 }
