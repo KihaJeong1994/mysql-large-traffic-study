@@ -40,6 +40,16 @@ CREATE TABLE Post
         primary key(id)
 );
 
+CREATE TABLE Timeline
+(
+    id int auto_increment,
+    memberId int not null ,
+    postId int not null,
+    createdAt datetime not null ,
+    constraint Timeline_id_uindex
+        primary key (id)
+);
+
 CREATE INDEX POST__index_member_id
     ON Post(memberId);
 

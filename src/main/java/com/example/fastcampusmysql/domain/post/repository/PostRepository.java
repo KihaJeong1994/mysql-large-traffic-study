@@ -54,6 +54,18 @@ public class PostRepository {
         return namedParameterJdbcTemplate.query(sql,params,DAILY_POST_COUNT_ROW_MAPPER);
     }
 
+    public List<Post> findAllByIdIn(List<Long> ids){
+        if(ids.isEmpty()) return List.of();
+        String sql = String.format("""
+                SELECT *
+                FROM %s
+                WHERE id IN (:ids)
+                """, TABLE);
+        var params = new MapSqlParameterSource()
+                .addValue("ids",ids);
+        return namedParameterJdbcTemplate.query(sql,params,ROW_MAPPER);
+    }
+
     public Page<Post> findAllByMemberId(Long memberId, Pageable pageable){
         String sql = String.format("""
                 SELECT *
@@ -112,7 +124,7 @@ public class PostRepository {
         return namedParameterJdbcTemplate.query(sql,param,ROW_MAPPER);
     }
 
-    public List<Post> findAllByIdLessThanByMemberIdOrderByIdDesc(Long id, Long memberId, int size){
+    public List<Post> findAllByIdLessThanAndMemberIdOrderByIdDesc(Long id, Long memberId, int size){
         String sql = String.format("""
                 SELECT *
                 FROM %s
@@ -128,7 +140,7 @@ public class PostRepository {
         return namedParameterJdbcTemplate.query(sql,param,ROW_MAPPER);
     }
 
-    public List<Post> findAllByIdLessThanByMemberIdInOrderByIdDesc(Long id, List<Long> memberIds, int size){
+    public List<Post> findAllByIdLessThanAndMemberIdInOrderByIdDesc(Long id, List<Long> memberIds, int size){
         if(memberIds.isEmpty()) return List.of();
         String sql = String.format("""
                 SELECT *
