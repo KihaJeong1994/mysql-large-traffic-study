@@ -7,12 +7,15 @@ import com.example.fastcampusmysql.domain.member.repository.MemberNicknameHistor
 import com.example.fastcampusmysql.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class MemberWriteService {
     private final MemberRepository memberRepository;
     private final MemberNicknameHistoryRepository memberNicknameHistoryRepository;
+
+    @Transactional
     public Member register(RegisterMemberCommand command){
         /*
         * GOAL - register member (email, nickname, birthdate)
@@ -31,6 +34,7 @@ public class MemberWriteService {
         return savedMember;
     }
 
+    @Transactional
     public void changeNickname(Long memberId, String nickname){
         /*
         * 1. change nickname of user
