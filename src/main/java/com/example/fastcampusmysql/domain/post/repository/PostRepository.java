@@ -19,6 +19,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -32,6 +33,7 @@ public class PostRepository {
                .memberId(rs.getLong("memberId"))
                .contents(rs.getString("contents"))
                .createdDate(rs.getObject("createdDate", LocalDate.class))
+               .likeCount(rs.getLong("likeCount"))
                .createdAt(rs.getObject("createdAt", LocalDateTime.class))
                .build();
     });
@@ -82,6 +84,32 @@ public class PostRepository {
         var posts = namedParameterJdbcTemplate.query(sql,params,ROW_MAPPER);
 
         return new PageImpl<>(posts, pageable,getCount(memberId));
+    }
+
+    public Optional<Post> findById(Long id){
+        String sql = String.format("""
+                SELECT *
+                FROM %s
+                WHERE id = :id
+                """, TABLE);
+        var param = new MapSqlParameterSource()
+                .addValue("id",id);
+        Post post = namedParameterJdbcTemplate.queryForObject(sql, param, ROW_MAPPER);
+        return Optional.ofNullable(post);
+    }
+
+    // There is @Lock(LockModeType.PESSIMISTIC_WRITE) annotation in JPA to use SELECT FOR UPDATE
+    public Optional<Post> findById(Long id, boolean requiredLock){
+        String sql = String.format("""
+                SELECT *
+                FROM %s
+                WHERE id = :id
+                """, TABLE);
+        if(requiredLock) sql += " FOR UPDATE";
+        var param = new MapSqlParameterSource()
+                .addValue("id",id);
+        Post post = namedParameterJdbcTemplate.queryForObject(sql, param, ROW_MAPPER);
+        return Optional.ofNullable(post);
     }
 
     private Long getCount(Long memberId){
@@ -165,8 +193,10 @@ public class PostRepository {
          * return member with id
          * */
         if(post.getId()==null) return insert(post);
-        throw new UnsupportedOperationException("Post does not support update");
+        return update(post);
     }
+
+
 
     /*
     * While using Spring Data JPA,
@@ -200,5 +230,20 @@ public class PostRepository {
                 .createdDate(post.getCreatedDate())
                 .createdAt(post.getCreatedAt())
                 .build();
+    }
+
+    private Post update(Post post) {
+        String sql = String.format("""
+                UPDATE %s SET
+                memberId = :memberId,
+                contents = :contents,
+                createdDate = :createdDate,
+                createdAt = :createdAt, 
+                likeCount = :likeCount
+                WHERE id = :id
+                """, TABLE);
+        var params = new BeanPropertySqlParameterSource(post);
+        namedParameterJdbcTemplate.update(sql,params);
+        return post;
     }
 }

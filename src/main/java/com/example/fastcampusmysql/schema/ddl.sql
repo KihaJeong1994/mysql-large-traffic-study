@@ -58,3 +58,5 @@ CREATE INDEX POST__index_created_date
 
 CREATE INDEX POST__index_member_id_created_date
     on Post(memberId,createdDate);
+
+ALTER TABLE Post ADD COLUMN likeCount int;
